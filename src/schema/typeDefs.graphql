@@ -1,0 +1,234 @@
+type Query {
+  getChats(page: Int!): ChatsResponse!
+  getNotifications(page: Int!): NotificationsResponse!
+  getMessages(chatId: String!, page: Int!): MessagesResponse!
+  getUsers: UsersResponse!
+  me: UserResponse!
+  getComments(postId: String!, page: Int!): CommentsResponse!
+  getFollowers(user_id: String!, page: Int!): FollowsResponse!
+  getFollowings(user_id: String!, page: Int!): FollowsResponse!
+  getLikes(postId: String!, page: Int!): LikesResponse!
+  getPost(postId: String!): PostResponse!
+  getPosts(page: Int!): PostsResponse!
+  getPostsOfUser(userId: String!, page: Int!): PostsResponse!
+}
+
+type Mutation {
+  createChat(membersId: [String]!, name: String): ChatResponse!
+  deleteChat(chatId: String!): ChatResponse!
+  deleteMessage(messageId: String!): MessageResponse!
+  comment(text: String!, postId: String!): CommentResponse!
+  deleteComment(commentId: String!): CommentResponse!
+  follow(userId: String!): FollowResponse!
+  like(postId: String!): LikeResponse!
+  createNewMessage(chatId: String!): MessageResponse!
+  sendMessage(
+    chatId: String!
+    messageId: String!
+    text: String!
+  ): MessageResponse!
+  createPost(caption: String!, url: String!): PostResponse!
+  deletePost(postId: String!): PostResponse!
+  updateComment(text: String!, commentId: String!): CommentResponse!
+  updateMessage(text: String!, messageId: String!): MessageResponse!
+  updatePost(caption: String!, postId: String!): PostResponse!
+  sendOtp(phone: String!): OtpResponse!
+  authenticate(
+    phone: String!
+    fcmToken: String!
+    hash: String!
+    otp: String!
+  ): LoginResponse!
+  deleteUser: UserResponse!
+  shredData(secret: String!): Boolean!
+  renameUser(name: String!): UserResponse!
+  searchUser(name: String!, page: Int!): UsersResponse!
+  updatePhone(phone: String!, hash: String!, otp: String!): UserResponse!
+  updateAvatar(avatarUrl: String!): UserResponse!
+}
+
+type Subscription {
+  getNewMessage(chatId: String!): Message!
+  getNewComment(postId: String!): Comment!
+  getNewLike(postId: String!): Like!
+  getNewFollower(user_id: String!): Follow!
+}
+
+type Error {
+  path: String!
+  message: String!
+}
+
+type NotificationsResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: [Notification]
+}
+
+type Notification {
+  type: String!
+  from_user: User!
+  postUrl: String
+  createdAt: String!
+}
+
+type OtpResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: OtpSuccessResponse
+}
+
+type OtpSuccessResponse {
+  hash: String!
+}
+
+type UserResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: User
+}
+
+type UsersResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: [User]
+}
+
+type PostResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: Post
+}
+
+type PostsResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: [Post]
+}
+
+type LikeResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: Like
+}
+
+type LikesResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: [Like]
+}
+
+type CommentResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: Comment
+}
+
+type CommentsResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: [Comment]
+}
+
+type FollowResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: Follow
+}
+
+type FollowsResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: [Follow]
+}
+
+type ChatResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: Chat
+}
+
+type ChatsResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: [Chat]
+}
+
+type MessageResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: Message
+}
+
+type MessagesResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: [Message]
+}
+
+type LoginResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: LoginSuccessResponse
+}
+
+type LoginSuccessResponse {
+  token: String!
+  user: User!
+}
+
+type Chat {
+  id: String!
+  members: [User]!
+  name: String!
+  lastMessage: String!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Comment {
+  id: String!
+  text: String!
+  from_user: User!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Like {
+  id: String!
+  from_user: User!
+  createdAt: String!
+}
+
+type Message {
+  id: String!
+  text: String!
+  sender: User!
+  me: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type User {
+  id: String!
+  name: String!
+  avatar: String!
+}
+
+type Post {
+  id: String!
+  caption: String!
+  url: String!
+  from_user: User!
+  createdAt: String!
+  updatedAt: String!
+  likesCount: Int!
+  commentsCount: Int!
+}
+
+type Follow {
+  id: String!
+  follower: User!
+  following: User!
+  createdAt: String!
+}
