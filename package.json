@@ -1,0 +1,19 @@
+{
+  "name": "chitchat_backend_node_api",
+  "version": "1.0.0",
+  "description": "Chitchat Backend API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sabin26/chitchat_backend_node_api.git"
+  },
+  "author": "Sabin Neupane",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sabin26/chitchat_backend_node_api/issues"
+  },
+  "homepage": "https://github.com/sabin26/chitchat_backend_node_api#readme"
+}
