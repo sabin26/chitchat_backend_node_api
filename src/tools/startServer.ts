@@ -58,7 +58,7 @@ const connectDB = async () => {
             break;
         } catch (e) {
             retry--;
-            console.log('');
+            console.log('---\n' + e + '\n---');
             console.log(`${retry} retries remaining`);
             await new Promise(res => setTimeout(res, 5000));
         }
