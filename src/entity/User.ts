@@ -17,7 +17,7 @@ import Post from './Post';
 import { EncryptionTransformer } from "typeorm-encrypted";
 import { MyEncryptionTransformerConfig } from './../config/encryptionConfig';
 
-@Entity('users')
+@Entity()
 export default class User extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
