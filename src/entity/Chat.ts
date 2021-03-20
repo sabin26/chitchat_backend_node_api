@@ -21,7 +21,7 @@ export default class Chat extends BaseEntity {
   messages: Message[];
 
   @ManyToMany(type => User, member => member.chats, { onDelete: 'CASCADE' })
-  @JoinTable()
+  @JoinTable({ name: 'Chat_Members' })
   members: User[];
 
   @Column({ default: '' })
