@@ -19,9 +19,9 @@ export default class Follow extends BaseEntity {
     @ManyToOne(type => User, user => user.followers, { onDelete: 'CASCADE' })
     following: User;
 
-    @CreateDateColumn()
-    createdAt: string;
+    @CreateDateColumn({ type: 'timestamptz' })
+    createdAt: Date;
 
-    @UpdateDateColumn()
-    updatedAt: string;
+    @UpdateDateColumn({ type: 'timestamptz' })
+    updatedAt: Date;
 }

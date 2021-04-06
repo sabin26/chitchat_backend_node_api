@@ -8,13 +8,12 @@ import Post from '../entity/Post';
 import User from '../entity/User';
 
 export const dbconfig: ConnectionOptions = {
-    host: process.env.DB_HOST || 'localhost',
-    port: Number(process.env.DB_NUMBER || '4000'),
-    username: process.env.DB_USERNAME || 'user',
-    password: process.env.DB_PASSWORD || 'password',
-    database: process.env.DB_NAME || 'social_media_db',
+    url: process.env.DATABASE_URL,
     type: 'postgres',
     logging: false,
+    ssl: {
+        rejectUnauthorized: false
+    },
     entities: [Chat, User, Message, Follow, Post, Like, Comment],
     migrations: ['src/migration/**/*.ts'],
     subscribers: ['src/subscriber/**/*.ts'],

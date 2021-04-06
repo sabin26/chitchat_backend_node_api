@@ -16,3 +16,4 @@ export const INVALID_USER_NAME = 'Invalid user name';
 export const INVALID_AVATAR_URL = 'Invalid avatar url';
 export const INVALID_PAGE = 'Invalid Page Number';
 export const SMS_FAILED_TO_SEND = 'Could not send SMS';
+export const INVALID_POST_TYPE = 'Invalid post type';

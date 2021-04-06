@@ -1,11 +1,12 @@
 import { getRepository, In } from 'typeorm';
 import { contextType } from '..';
 import { returnError } from '../../config/errorHandling';
-import { INVALID_PAGE, NO_POST, NO_POST_URL, NO_USER, UN_AUTHROIZED } from '../../config/errorMessages';
+import { INVALID_PAGE, INVALID_POST_TYPE, NO_POST, NO_POST_URL, NO_USER, UN_AUTHROIZED } from '../../config/errorMessages';
 import Follow from '../../entity/Follow';
 import Post from '../../entity/Post';
 import User from '../../entity/User';
 import { validate as uuidValidate } from 'uuid';
+import Like from '../../entity/Like';
 
 const resolvers = {
     Mutation: {
@@ -20,21 +21,33 @@ const resolvers = {
     },
 };
 
-async function createPost(_: any, { caption, url }: { caption: string, url: string }, { user }: contextType) {
+async function createPost(_: any, { caption, url, type }: { caption: string, url: string, type: string }, { user }: contextType) {
     if (!user) return returnError('createPost', UN_AUTHROIZED);
 
     if (!url) return returnError('createPost', NO_POST_URL);
 
-    const postObj = await createNewPost(caption ?? '', url, user);
+    const isValidType = type === 'photo' || type === 'video';
 
-    return { isSuccess: true, data: { ...postObj, likesCount: 0, commentsCount: 0 } };
+    if (!isValidType) return returnError('createPost', INVALID_POST_TYPE);
+
+    const postObj = await createNewPost(caption ?? '', url, user, type);
+
+    return { isSuccess: true, data: { ...postObj, likesCount: 0, isLiked: false, commentsCount: 0 } };
 }
 
 async function getPostRepo(postId: string) {
     const postRepo = getRepository(Post);
     return await postRepo.findOne({
-        relations: ['from_user', 'likes', 'comments'],
+        relations: ['from_user', 'likes'],
         where: { id: postId },
+    });
+}
+
+async function getLikeRepo(post: Post, from_user: User) {
+    const likeRepo = getRepository(Like);
+    return await likeRepo.findOne({
+        relations: ['from_user', 'to_post'],
+        where: { to_post: post, from_user: from_user },
     });
 }
 
@@ -52,7 +65,11 @@ async function updatePost(_: any, { caption, postId }: { caption: string, postId
     postObj.caption = caption;
     await postObj.save();
 
-    return { isSuccess: true, data: { ...postObj, likesCount: postObj.likes.length, commentsCount: postObj.comments.length } };
+    const likeObj = await getLikeRepo(postObj, user);
+
+    const isNotLiked = !likeObj;
+
+    return { isSuccess: true, data: { ...postObj, isLiked: !isNotLiked, likesCount: postObj.likes.length, commentsCount: postObj.comments.length } };
 }
 
 async function deletePost(_: any, { postId }: { postId: string }, { user }: contextType) {
@@ -69,8 +86,8 @@ async function deletePost(_: any, { postId }: { postId: string }, { user }: cont
     return { isSuccess: true };
 }
 
-async function createNewPost(caption: string, url: string, user: User) {
-    const post = Post.create({ caption: caption, url: url, from_user: user });
+async function createNewPost(caption: string, url: string, user: User, type: string) {
+    const post = Post.create({ caption: caption, url: url, from_user: user, type: type });
     await post.save();
     return post;
 }
@@ -84,7 +101,11 @@ async function getPost(_: any, { postId }: { postId: string }, { user }: context
     const postObj = await getPostRepo(postId);
     if (!postObj) return returnError('getPost', NO_POST);
 
-    return { isSuccess: true, data: { ...postObj, likesCount: postObj.likes.length, commentsCount: postObj.comments.length } };
+    const likeObj = await getLikeRepo(postObj, user);
+
+    const isNotLiked = !likeObj;
+
+    return { isSuccess: true, data: { ...postObj, isLiked: !isNotLiked, likesCount: postObj.likes.length, commentsCount: postObj.comments.length } };
 }
 
 async function getPostsOfUser(_: any, { userId, page }: { userId: string, page: number }, { user }: contextType) {
@@ -104,12 +125,13 @@ async function getPostsOfUser(_: any, { userId, page }: { userId: string, page: 
         caption: string;
         url: string;
         from_user: User;
-        createdAt: string;
-        updatedAt: string;
+        createdAt: Date;
+        updatedAt: Date;
+        type: string;
     }[] = [];
 
     const postRepo = await getRepository(Post).find({
-        relations: ['from_user', 'likes', 'comments'],
+        relations: ['from_user', 'likes', 'comments', 'likes.from_user'],
         where: { from_user: ofUser },
         order: { updatedAt: "DESC" },
         skip: (page - 1) * 15,
@@ -117,7 +139,8 @@ async function getPostsOfUser(_: any, { userId, page }: { userId: string, page: 
     });
 
     postRepo.forEach(post => {
-        const value = { ...post, likesCount: post.likes.length, commentsCount: post.comments.length };
+        const isLiked = post.likes.findIndex((like) => like.from_user.id === user.id) != -1;
+        const value = { ...post, isLiked: isLiked, likesCount: post.likes.length, commentsCount: post.comments.length };
         posts.push(value);
     });
 
@@ -135,8 +158,9 @@ async function getPosts(_: any, { page }: { page: number }, { user }: contextTyp
         caption: string;
         url: string;
         from_user: User;
-        createdAt: string;
-        updatedAt: string;
+        createdAt: Date;
+        updatedAt: Date;
+        type: string;
     }[] = [];
 
     const followObjs = await getRepository(Follow).find({
@@ -148,7 +172,7 @@ async function getPosts(_: any, { page }: { page: number }, { user }: contextTyp
     followObjs.forEach(follow => followings.push(follow.following.id));
 
     const postRepo = await getRepository(Post).find({
-        relations: ['from_user', 'likes', 'comments'],
+        relations: ['from_user', 'likes', 'comments', 'likes.from_user'],
         where: [{ from_user: In(followings) }, { from_user: user }],
         order: { updatedAt: "DESC" },
         skip: (page - 1) * 15,
@@ -156,7 +180,8 @@ async function getPosts(_: any, { page }: { page: number }, { user }: contextTyp
     });
 
     postRepo.forEach(post => {
-        const value = { ...post, likesCount: post.likes.length, commentsCount: post.comments.length };
+        const isLiked = post.likes.findIndex((like) => like.from_user.id === user.id) != -1;
+        const value = { ...post, isLiked: isLiked, likesCount: post.likes.length, commentsCount: post.comments.length };
         posts.push(value);
     });
 

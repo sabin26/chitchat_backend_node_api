@@ -23,6 +23,9 @@ export default class Post extends BaseEntity {
     @Column()
     url: string;
 
+    @Column()
+    type: string;
+
     @ManyToOne(type => User, user => user.posts, { onDelete: 'CASCADE' })
     from_user: User;
 
@@ -32,9 +35,9 @@ export default class Post extends BaseEntity {
     @OneToMany(type => Comment, comment => comment.to_post, { onDelete: 'CASCADE' })
     comments: Comment[];
 
-    @CreateDateColumn()
-    createdAt: string;
+    @CreateDateColumn({ type: 'timestamptz' })
+    createdAt: Date;
 
-    @UpdateDateColumn()
-    updatedAt: string;
+    @UpdateDateColumn({ type: 'timestamptz' })
+    updatedAt: Date;
 }

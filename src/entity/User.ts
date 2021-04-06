@@ -55,9 +55,9 @@ export default class User extends BaseEntity {
   @Column('simple-array', { default: [] })
   fcmTokens: string[];
 
-  @CreateDateColumn()
-  createdAt: string;
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: string;
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date;
 }

@@ -14,6 +14,7 @@ const resolvers = {
         follow,
     },
     Query: {
+        isFollowing,
         getFollowers,
         getFollowings,
     },
@@ -67,7 +68,7 @@ async function follow(_: any, { userId }: { userId: string }, { user }: contextT
 
     // Prepare a message to be sent
     var notificationMsg = new gcm.Message({
-        data: { text: user.name + ' started following you' },
+        data: { text: user.id },
         notification: {
             title: 'ChitChat',
             icon: 'ic_launcher',
@@ -85,6 +86,28 @@ async function follow(_: any, { userId }: { userId: string }, { user }: contextT
     });
     await triggerSubscription(followObj, otherUser);
     return { isSuccess: true, data: followObj };
+}
+
+async function isFollowing(_: any, { userId }: { userId: string }, { user }: contextType) {
+    if (!user) return returnError('isFollowing', UN_AUTHROIZED);
+    if (!userId) return returnError('isFollowing', NO_USER);
+    if (user.id === userId) return returnError('isFollowing', NO_USER);
+
+    const isValidUuid = uuidValidate(userId || '');
+    if (!isValidUuid) return returnError('isFollowing', NO_USER);
+
+    const otherUser = await getUserRepo(userId);
+
+    if (!otherUser) return returnError('isFollowing', NO_USER);
+
+    const followingObj = await getRepository(Follow)
+        .findOne({
+            relations: ['follower', 'following'],
+            where: { follower: user, following: otherUser },
+        });
+
+    if (!followingObj) return { isSuccess: true, data: { isFollowing: false } };
+    return { isSuccess: true, data: { isFollowing: true } };
 }
 
 async function createNewFollowObject(follower: User, following: User) {

@@ -62,7 +62,7 @@ async function like(_: any, { postId }: { postId: string }, { user }: contextTyp
 
     // Prepare a message to be sent
     var notificationMsg = new gcm.Message({
-        data: { text: user.name + ' liked your post' },
+        data: { text: post.id },
         notification: {
             title: 'ChitChat',
             icon: 'ic_launcher',

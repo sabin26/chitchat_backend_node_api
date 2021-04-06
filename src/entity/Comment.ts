@@ -24,9 +24,9 @@ export default class Comment extends BaseEntity {
     @ManyToOne(type => Post, post => post.comments, { onDelete: 'CASCADE' })
     to_post: Post;
 
-    @CreateDateColumn()
-    createdAt: string;
+    @CreateDateColumn({ type: 'timestamptz' })
+    createdAt: Date;
 
-    @UpdateDateColumn()
-    updatedAt: string;
+    @UpdateDateColumn({ type: 'timestamptz' })
+    updatedAt: Date;
 }

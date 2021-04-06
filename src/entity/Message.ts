@@ -24,9 +24,9 @@ export default class Message extends BaseEntity {
   @ManyToOne(type => Chat, chat => chat.messages, { onDelete: 'CASCADE' })
   chat: Chat;
 
-  @CreateDateColumn()
-  createdAt: string;
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: string;
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date;
 }

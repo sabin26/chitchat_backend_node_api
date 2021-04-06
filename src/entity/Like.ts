@@ -20,9 +20,9 @@ export default class Like extends BaseEntity {
     @ManyToOne(type => Post, post => post.likes, { onDelete: 'CASCADE' })
     to_post: Post;
 
-    @CreateDateColumn()
-    createdAt: string;
+    @CreateDateColumn({ type: 'timestamptz' })
+    createdAt: Date;
 
-    @UpdateDateColumn()
-    updatedAt: string;
+    @UpdateDateColumn({ type: 'timestamptz' })
+    updatedAt: Date;
 }

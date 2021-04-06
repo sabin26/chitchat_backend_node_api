@@ -130,7 +130,10 @@ async function sendOtp(_: any, { phone }: { phone: string }) {
 /* ---------------------SEND SMS------------------------- */
 async function sendSMS(phone: string, otp: string, fullHash: string) {
   return axios
-    .post('https://hpm8f5et13.execute-api.us-east-1.amazonaws.com/dev/sendSMS', {
+    .post(
+      //Uncomment in production
+      //process.env.SEND_SMS_URL
+      '', {
       "phone_number": phone,
       "passCode": otp,
       "apiKey": process.env.API_KEY || ''
@@ -139,12 +142,19 @@ async function sendSMS(phone: string, otp: string, fullHash: string) {
       return {
         isSuccess: true,
         data: {
-          hash: fullHash,
+          hash: fullHash + "::" + otp, // remove otp in production
         }
       };
     })
     .catch(error => {
-      return returnError('sendOtp', SMS_FAILED_TO_SEND);
+      // Uncomment in production
+      //return returnError('sendOtp', SMS_FAILED_TO_SEND);
+      return {
+        isSuccess: true,
+        data: {
+          hash: fullHash + "::" + otp, // remove this block on production
+        }
+      };
     });
 }
 
@@ -197,7 +207,7 @@ async function searchUser(_: any, { name, page }: { name: string, page: number }
   if (!page || page < 1) return returnError('searchUser', INVALID_PAGE);
   var users = await getRepository(User)
     .createQueryBuilder('user')
-    .where('user.name like :name', { name: `%${name}%` })
+    .where('LOWER(user.name) like :name', { name: `%${name.toLowerCase()}%` })
     .andWhere('user.id != :id', { id: `${user.id}` })
     .skip((page - 1) * 15)
     .take(15)
@@ -210,7 +220,11 @@ async function renameUser(_: any, { name }: { name: string }, { user }: contextT
   if (!user) return returnError('renameUser', UN_AUTHROIZED);
   if (!name) return returnError('renameUser', INVALID_USER_NAME);
 
-  user.name = name;
+  const words = name.split(' ');
+  const fullName = words.map((word) => {
+    return word[0].toUpperCase() + word.substring(1);
+  }).join(' ');
+  user.name = fullName;
   await user.save();
   return { isSuccess: true, data: user };
 }
@@ -287,7 +301,7 @@ async function getNotifications(_: any, { page }: { page: number }, { user }: co
     type: string,
     from_user: User,
     postUrl?: string,
-    createdAt: string,
+    createdAt: Date,
   }[] = [];
 
   likes.forEach(like => {

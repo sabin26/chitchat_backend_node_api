@@ -11,10 +11,22 @@ import postResolver from './resolvers/postResolvers';
 import likeResolver from './resolvers/likeResolvers';
 import commentResolver from './resolvers/commentResolvers';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
+import { GraphQLScalarType } from 'graphql';
 
 const schema = loadSchemaSync(join(__dirname, './typeDefs.graphql'), { loaders: [new GraphQLFileLoader()] });
 
+const dateScalar = new GraphQLScalarType({
+    name: 'Date',
+    parseValue(value: string) {
+        return new Date(value);
+    },
+    serialize(value: Date) {
+        return value.toISOString();
+    },
+});
+
 const resolvers = {
+    Date: dateScalar,
     Query: {
         ...chatResolver.Query,
         ...userResolver.Query,

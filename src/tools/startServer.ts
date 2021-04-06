@@ -23,6 +23,7 @@ export async function startServer(port: number) {
         },
         subscriptions: {
             path: '/subscriptions',
+            keepAlive: 30000,
             onConnect: async (connectionParams: any) => {
                 const user = await getUser(connectionParams.authorization || '');
                 if (!user)

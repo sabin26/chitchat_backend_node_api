@@ -5,6 +5,7 @@ type Query {
   getUsers: UsersResponse!
   me: UserResponse!
   getComments(postId: String!, page: Int!): CommentsResponse!
+  isFollowing(userId: String!): IsFollowingResponse!
   getFollowers(user_id: String!, page: Int!): FollowsResponse!
   getFollowings(user_id: String!, page: Int!): FollowsResponse!
   getLikes(postId: String!, page: Int!): LikesResponse!
@@ -57,6 +58,16 @@ type Subscription {
 type Error {
   path: String!
   message: String!
+}
+
+type IsFollowingResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: IsFollowingData
+}
+
+type IsFollowingData {
+  isFollowing: Boolean!
 }
 
 type NotificationsResponse {
@@ -177,27 +188,29 @@ type LoginSuccessResponse {
   user: User!
 }
 
+scalar Date
+
 type Chat {
   id: String!
   members: [User]!
   name: String!
   lastMessage: String!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: Date!
+  updatedAt: Date!
 }
 
 type Comment {
   id: String!
   text: String!
   from_user: User!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: Date!
+  updatedAt: Date!
 }
 
 type Like {
   id: String!
   from_user: User!
-  createdAt: String!
+  createdAt: Date!
 }
 
 type Message {
@@ -205,8 +218,8 @@ type Message {
   text: String!
   sender: User!
   me: Boolean!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: Date!
+  updatedAt: Date!
 }
 
 type User {
@@ -220,15 +233,17 @@ type Post {
   caption: String!
   url: String!
   from_user: User!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: Date!
+  updatedAt: Date!
   likesCount: Int!
   commentsCount: Int!
+  type: String!
+  isLiked: Boolean!
 }
 
 type Follow {
   id: String!
   follower: User!
   following: User!
-  createdAt: String!
+  createdAt: Date!
 }

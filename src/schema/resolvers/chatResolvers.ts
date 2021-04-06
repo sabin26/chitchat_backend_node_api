@@ -36,9 +36,11 @@ async function createChat(
   if ((!constainsMe && membersId.length == 1) || (constainsMe && membersId.length == 2)) {
     const userR = await getUserRepo(user.id);
 
+    const otherUserIdIndex = membersId.findIndex((memberId) => memberId != user.id);
+
     for (let chat of userR.chats) {
       if (chat.members.length == 2) {
-        const chatExist = chat.members.filter(mem => mem.id == membersId[0]);
+        const chatExist = chat.members.filter(mem => mem.id === membersId[otherUserIdIndex]);
         if (chatExist.length >= 1) return returnError('createChat', DUPLICATE_CHAT);
       }
     }

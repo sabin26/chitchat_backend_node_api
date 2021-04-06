@@ -30,9 +30,9 @@ export default class Chat extends BaseEntity {
   @Column({ default: '' })
   name: string;
 
-  @CreateDateColumn()
-  createdAt: string;
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: string;
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date;
 }
