@@ -57,28 +57,29 @@ async function like(_: any, { postId }: { postId: string }, { user }: contextTyp
 
     const likeObj = await createNewLike(user, post);
 
-    const membersToken = [];
-    post.from_user.fcmTokens.forEach(token => membersToken.push(token));
+    if (post.from_user.id != user.id) {
+        const membersToken = [];
+        post.from_user.fcmTokens.forEach(token => membersToken.push(token));
 
-    // Prepare a message to be sent
-    var notificationMsg = new gcm.Message({
-        data: { text: post.id },
-        notification: {
-            title: 'ChitChat',
-            icon: 'ic_launcher',
-            body: user.name + ' liked your post',
-            sound: 'default'
-        }
-    });
+        // Prepare a message to be sent
+        var notificationMsg = new gcm.Message({
+            data: { text: post.id },
+            notification: {
+                title: 'ChitChat',
+                icon: 'ic_launcher',
+                body: user.name + ' liked your post',
+                sound: 'default'
+            }
+        });
 
-    sender.send(notificationMsg, { registrationTokens: membersToken }, function (err, response) {
-        if (err) {
-            console.log('Something has gone wrong!', err);
-        } else {
-            console.log('Successfully sent with response: ', response);
-        }
-    });
-
+        sender.send(notificationMsg, { registrationTokens: membersToken }, function (err, response) {
+            if (err) {
+                console.log('Something has gone wrong!', err);
+            } else {
+                console.log('Successfully sent with response: ', response);
+            }
+        });
+    }
     await triggerSubscription(likeObj, post);
     return { isSuccess: true, data: likeObj };
 }
