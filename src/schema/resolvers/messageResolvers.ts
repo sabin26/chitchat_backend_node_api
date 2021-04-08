@@ -59,7 +59,7 @@ async function sendMessage(_: any, { chatId, messageId, text }: { chatId: string
 
   // Prepare a message to be sent
   var notificationMsg = new gcm.Message({
-    data: { type: 'follow', dataId: chat.id, userId: user.id, userName: user.name, userAvatar: user.avatar },
+    data: { type: 'message', dataId: chat.id, userId: user.id, userName: user.name, userAvatar: user.avatar },
     notification: {
       title: 'ChitChat',
       icon: 'ic_launcher',
