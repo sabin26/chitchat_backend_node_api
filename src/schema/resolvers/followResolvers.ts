@@ -68,7 +68,7 @@ async function follow(_: any, { userId }: { userId: string }, { user }: contextT
 
     // Prepare a message to be sent
     var notificationMsg = new gcm.Message({
-        data: { text: user.id },
+        data: { type: 'follow', dataId: user.id, userId: user.id, userName: user.name, userAvatar: user.avatar },
         notification: {
             title: 'ChitChat',
             icon: 'ic_launcher',

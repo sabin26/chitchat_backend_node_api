@@ -62,7 +62,7 @@ async function comment(_: any, { text, postId }: { text: string, postId: string 
 
         // Prepare a message to be sent
         var notificationMsg = new gcm.Message({
-            data: { text: post.id },
+            data: { type: 'comment', dataId: post.id },
             notification: {
                 title: 'ChitChat',
                 icon: 'ic_launcher',
