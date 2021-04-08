@@ -51,7 +51,8 @@ async function sendMessage(_: any, { chatId, messageId, text }: { chatId: string
   await chat.save();
 
   const membersToken = [];
-  chat.members.forEach(({ fcmTokens }) => {
+  const otherUsers = chat.members.filter((member) => member.id != user.id);
+  otherUsers.forEach(({ fcmTokens }) => {
     if (fcmTokens) {
       fcmTokens.forEach(token => membersToken.push(token));
     }
