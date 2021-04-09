@@ -291,7 +291,7 @@ async function getNotifications(_: any, { page }: { page: number }, { user }: co
   const followObj = await getRepository(Follow)
     .find({
       relations: ['follower', 'following'],
-      where: { following: user, from_user: Not(user.id) },
+      where: { following: user, follower: Not(user.id) },
       order: { createdAt: "DESC" },
       skip: (page - 1) * 15,
       take: 15
