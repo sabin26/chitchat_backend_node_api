@@ -19,7 +19,7 @@ import User from '../../entity/User';
 import crypto = require("crypto");
 import https = require('https');
 const key = process.env.OTP_SECRET || '';
-import { getRepository, In } from 'typeorm';
+import { getRepository, In, Not } from 'typeorm';
 import Like from '../../entity/Like';
 import Comment from '../../entity/Comment';
 import Follow from '../../entity/Follow';
@@ -273,7 +273,7 @@ async function getNotifications(_: any, { page }: { page: number }, { user }: co
   const likes = await getRepository(Like)
     .find({
       relations: ['from_user', 'to_post'],
-      where: { to_post: In(posts) },
+      where: { to_post: In(posts), from_user: Not(user.id) },
       order: { createdAt: "DESC" },
       skip: (page - 1) * 15,
       take: 15
@@ -282,7 +282,7 @@ async function getNotifications(_: any, { page }: { page: number }, { user }: co
   const comments = await getRepository(Comment)
     .find({
       relations: ['from_user', 'to_post'],
-      where: { to_post: In(posts) },
+      where: { to_post: In(posts), from_user: Not(user.id) },
       order: { createdAt: "DESC" },
       skip: (page - 1) * 15,
       take: 15
@@ -291,7 +291,7 @@ async function getNotifications(_: any, { page }: { page: number }, { user }: co
   const followObj = await getRepository(Follow)
     .find({
       relations: ['follower', 'following'],
-      where: { following: user },
+      where: { following: user, from_user: Not(user.id) },
       order: { createdAt: "DESC" },
       skip: (page - 1) * 15,
       take: 15
