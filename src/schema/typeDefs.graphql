@@ -195,6 +195,7 @@ type Chat {
   members: [User]!
   name: String!
   lastMessage: String!
+  lastMessageId: String
   createdAt: Date!
   updatedAt: Date!
 }

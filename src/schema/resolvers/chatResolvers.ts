@@ -5,6 +5,7 @@ import { DUPLICATE_CHAT, INVALID_PAGE, NO_CHAT, NO_USER, UN_AUTHROIZED } from '.
 import Chat from '../../entity/Chat';
 import User from '../../entity/User';
 import { validate as uuidValidate } from 'uuid';
+import Message from '../../entity/Message';
 
 const resolvers = {
   Mutation: {
@@ -110,11 +111,24 @@ async function getChats(_: any, { page }: { page: number }, { user }: contextTyp
   for (let chat of slicedChats) {
     if (chat.members.length == 1) {
       await chat.remove();
-    } else if (!chat.name) {
-      const mem = chat.members.filter(member => member.id !== user.id)[0];
-      chats.push({ ...chat, name: mem.name });
     } else {
-      chats.push(chat);
+      const lastMessage = await getRepository(Message)
+        .findOne({
+          where: { chat: chat },
+          order: { updatedAt: "DESC" }
+        });
+      var lastMessageId;
+      if (!lastMessage) {
+        lastMessageId = null;
+      } else {
+        lastMessageId = lastMessage.id;
+      }
+      if (!chat.name) {
+        const mem = chat.members.filter(member => member.id !== user.id)[0];
+        chats.push({ ...chat, name: mem.name, lastMessageId: lastMessageId });
+      } else {
+        chats.push({ ...chat, lastMessageId: lastMessageId });
+      }
     }
   }
 
