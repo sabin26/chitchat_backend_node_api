@@ -1,7 +1,7 @@
 type Query {
   getChats(page: Int!): ChatsResponse!
   getNotifications(page: Int!): NotificationsResponse!
-  getMessages(chatId: String!, page: Int!): MessagesResponse!
+  getMessages(chatId: String!, skip: Int!): MessagesResponse!
   getUsers: UsersResponse!
   me: UserResponse!
   getComments(postId: String!, page: Int!): CommentsResponse!

@@ -136,9 +136,8 @@ async function triggerSubscription(senderId: string, chatId: string, message: Me
   return null;
 }
 
-async function getMessages(_: any, { chatId, page }: { chatId: string, page: number }, { user }: contextType) {
+async function getMessages(_: any, { chatId, skip }: { chatId: string, skip: number }, { user }: contextType) {
   if (!user) return returnError('getMessages', UN_AUTHROIZED);
-  if (!page || page < 1) return returnError('getMessages', INVALID_PAGE);
 
   const isValidUuid = uuidValidate(chatId || '');
   if (!isValidUuid) return returnError('getMessages', NO_CHAT);
@@ -155,7 +154,7 @@ async function getMessages(_: any, { chatId, page }: { chatId: string, page: num
       relations: ['sender', 'chat'],
       where: { chat: chat },
       order: { updatedAt: "DESC" },
-      skip: (page - 1) * 30,
+      skip: skip,
       take: 30
     });
 
