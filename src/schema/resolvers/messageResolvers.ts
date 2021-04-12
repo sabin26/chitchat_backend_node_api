@@ -1,5 +1,5 @@
 import { withFilter } from 'apollo-server';
-import { getRepository } from 'typeorm';
+import { getRepository, Not } from 'typeorm';
 import { contextType, pubSub } from '..';
 import { returnError } from '../../config/errorHandling';
 import { INVALID_PAGE, NO_CHAT, NO_MESSAGE, UN_AUTHROIZED } from '../../config/errorMessages';
@@ -152,7 +152,7 @@ async function getMessages(_: any, { chatId, skip }: { chatId: string, skip: num
   const messagesObj = await getRepository(Message)
     .find({
       relations: ['sender', 'chat'],
-      where: { chat: chat },
+      where: { chat: chat, text: Not('') },
       order: { updatedAt: "DESC" },
       skip: skip,
       take: 30
