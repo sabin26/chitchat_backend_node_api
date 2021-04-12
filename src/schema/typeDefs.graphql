@@ -55,6 +55,8 @@ type Subscription {
   getNewFollower(user_id: String!): Follow!
 }
 
+scalar Date
+
 type Error {
   path: String!
   message: String!
@@ -79,8 +81,8 @@ type NotificationsResponse {
 type Notification {
   type: String!
   from_user: User!
-  postUrl: String
-  createdAt: String!
+  postId: String
+  createdAt: Date!
 }
 
 type OtpResponse {
@@ -187,8 +189,6 @@ type LoginSuccessResponse {
   token: String!
   user: User!
 }
-
-scalar Date
 
 type Chat {
   id: String!
