@@ -25,12 +25,14 @@ import Comment from '../../entity/Comment';
 import Follow from '../../entity/Follow';
 import Post from '../../entity/Post';
 import axios from 'axios';
+import { RtcTokenBuilder, RtcRole } from 'agora-access-token';
 
 const resolvers = {
   Query: {
     getUsers,
     me,
     getNotifications,
+    getTokenForCall,
   },
   Mutation: {
     sendOtp,
@@ -255,6 +257,21 @@ async function updatePhone(_: any, { phone, hash, otp }: { phone: string, hash: 
   user.phone = phone;
   await user.save();
   return { isSuccess: true };
+}
+
+async function getTokenForCall(_: any, { channelId }: { channelId: string }, { user }: contextType) {
+  if (!user) return returnError('getTokenForCall', UN_AUTHROIZED);
+  const role = RtcRole.PUBLISHER;
+
+  const expirationTimeInSeconds = 3600
+
+  const currentTimestamp = Math.floor(Date.now() / 1000)
+
+  const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds
+
+  const token = RtcTokenBuilder.buildTokenWithUid(process.env.AGORA_APP_ID, process.env.AGORA_APP_CERTIFICATE, channelId, 0, role, privilegeExpiredTs);
+
+  return { isSuccess: true, data: token };
 }
 
 async function getNotifications(_: any, { page }: { page: number }, { user }: contextType) {

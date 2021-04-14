@@ -12,6 +12,7 @@ type Query {
   getPost(postId: String!): PostResponse!
   getPosts(page: Int!): PostsResponse!
   getPostsOfUser(userId: String!, page: Int!): PostsResponse!
+  getTokenForCall(channelId: String!): CallTokenResponse!
 }
 
 type Mutation {
@@ -60,6 +61,12 @@ scalar Date
 type Error {
   path: String!
   message: String!
+}
+
+type CallTokenResponse {
+  isSuccess: Boolean!
+  error: Error
+  data: String
 }
 
 type IsFollowingResponse {
