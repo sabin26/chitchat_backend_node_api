@@ -36,11 +36,11 @@ async function createPost(_: any, { caption, url, type }: { caption: string, url
 }
 
 async function getPostRepo(postId: string) {
-    const postRepo = getRepository(Post);
-    return await postRepo.findOne({
-        relations: ['from_user', 'likes'],
+    const postRepo = await getRepository(Post).findOne({
+        relations: ['from_user', 'likes', 'comments', 'likes.from_user'],
         where: { id: postId },
     });
+    return postRepo;
 }
 
 async function getLikeRepo(post: Post, from_user: User) {
