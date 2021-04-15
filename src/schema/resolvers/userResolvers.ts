@@ -24,8 +24,10 @@ import Like from '../../entity/Like';
 import Comment from '../../entity/Comment';
 import Follow from '../../entity/Follow';
 import Post from '../../entity/Post';
-import axios from 'axios';
 import { RtcTokenBuilder, RtcRole } from 'agora-access-token';
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = require('twilio')(accountSid, authToken);
 
 const resolvers = {
   Query: {
@@ -131,32 +133,21 @@ async function sendOtp(_: any, { phone }: { phone: string }) {
 
 /* ---------------------SEND SMS------------------------- */
 async function sendSMS(phone: string, otp: string, fullHash: string) {
-  return axios
-    .post(
-      //Uncomment in production
-      //process.env.SEND_SMS_URL
-      '', {
-      "phone_number": phone,
-      "passCode": otp,
-      "apiKey": process.env.API_KEY || ''
+  return client.messages
+    .create({
+      body: 'Your otp code for ChitChat is: ' + otp,
+      from: process.env.TWILIO_PHONE_NUM,
+      to: phone
     })
-    .then(res => {
+    .then(message => {
       return {
         isSuccess: true,
         data: {
-          hash: fullHash + "::" + otp, // remove otp in production
+          hash: fullHash,
         }
       };
-    })
-    .catch(error => {
-      // Uncomment in production
-      //return returnError('sendOtp', SMS_FAILED_TO_SEND);
-      return {
-        isSuccess: true,
-        data: {
-          hash: fullHash + "::" + otp, // remove this block on production
-        }
-      };
+    }).catch(error => {
+      return returnError('sendOtp', SMS_FAILED_TO_SEND);
     });
 }
 

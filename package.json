@@ -37,6 +37,7 @@
     "nodemon": "^2.0.7",
     "pg": "^8.5.1",
     "ts-node": "^9.1.1",
+    "twilio": "^3.60.0",
     "typeorm": "^0.2.31",
     "typeorm-encrypted": "^0.5.6",
     "typescript": "^4.1.5",
