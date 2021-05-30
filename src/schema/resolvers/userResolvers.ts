@@ -10,6 +10,7 @@ import {
   INVALID_PAGE,
   INVALID_PHONE,
   INVALID_USER_NAME,
+  NO_USER,
   SMS_FAILED_TO_SEND,
   UN_AUTHROIZED,
 } from '../../config/errorMessages';
@@ -28,6 +29,7 @@ import { RtcTokenBuilder, RtcRole } from 'agora-access-token';
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
+import { validate as uuidValidate } from 'uuid';
 
 const resolvers = {
   Query: {
@@ -45,6 +47,7 @@ const resolvers = {
     searchUser,
     updatePhone,
     updateAvatar,
+    deleteUserByAdmin,
   },
 };
 
@@ -67,7 +70,6 @@ async function getUsers(_: any, { }, { user }: contextType) {
 
 //Mutation
 /* --------------------AUTHENTICATE-------------------------- */
-
 async function authenticate(_: any, { phone, fcmToken, hash, otp }: { phone: string, fcmToken: string, hash: string, otp: string }) {
 
   if (!phone) return returnError('authenticate', INVALID_PHONE);
@@ -104,9 +106,25 @@ async function deleteUser(_: any, { }, { user }: contextType) {
   return { isSuccess: true };
 }
 
+/* -----------------------DELELTE_USER BY ADMIN------------------------- */
+async function deleteUserByAdmin(_: any, { secret, userId }: { secret: string, userId: string }) {
+  if (!secret) return returnError('deleteUserByAdmin', UN_AUTHROIZED);
+  if (!userId) return returnError('deleteUserByAdmin', NO_USER);
+  let isValidUserId = uuidValidate(userId);
+  if (!isValidUserId) return returnError('deleteUserByAdmin', NO_USER);
+  if (secret === process.env.KILL_SWITCH) {
+    let user = await User.findOne({ where: { id: userId } });
+    if (!user) return returnError('deleteUserByAdmin', NO_USER);
+    await user.remove();
+    return { isSuccess: true };
+  } else {
+    return returnError('deleteUserByAdmin', UN_AUTHROIZED);
+  }
+}
+
 /* ---------------------SHRED DATA------------------------- */
 async function shredData(_: any, { secret }: { secret: string }) {
-  if (secret === process.env.KILL_SWITCH && secret) {
+  if (secret && secret === process.env.KILL_SWITCH) {
     await Chat.clear();
     await User.clear();
     await Message.clear();
@@ -122,7 +140,7 @@ async function sendOtp(_: any, { phone }: { phone: string }) {
     if (!result.valid) return returnError('sendOtp', INVALID_PHONE);
     const otp = Math.floor(100000 + Math.random() * 900000)
     const ttl = 2 * 60 * 1000; //2 Minutes in miliseconds
-    const expires = Date.now() + ttl; //timestamp to 5 minutes in the future
+    const expires = Date.now() + ttl; //timestamp to 2 minutes in the future
     const data = `${phone}.${otp}.${expires}`; // phone.otp.expiry_timestamp
     const hash = crypto.createHmac("sha256", key).update(data).digest("hex"); // creating SHA256 hash of the data
     const fullHash = `${hash}.${expires}`; // Hash.expires, format to send to the user

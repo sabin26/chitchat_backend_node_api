@@ -13,6 +13,7 @@ const resolvers = {
         createPost,
         updatePost,
         deletePost,
+        deletePostByAdmin,
     },
     Query: {
         getPost,
@@ -33,6 +34,22 @@ async function createPost(_: any, { caption, url, type }: { caption: string, url
     const postObj = await createNewPost(caption ?? '', url, user, type);
 
     return { isSuccess: true, data: { ...postObj, likesCount: 0, isLiked: false, commentsCount: 0 } };
+}
+
+/* -----------------------DELELTE_POST BY ADMIN------------------------- */
+async function deletePostByAdmin(_: any, { secret, postId }: { secret: string, postId: string }) {
+    if (!secret) return returnError('deletePostByAdmin', UN_AUTHROIZED);
+    if (!postId) return returnError('deletePostByAdmin', NO_POST);
+    let isValidPostId = uuidValidate(postId);
+    if (!isValidPostId) return returnError('deletePostByAdmin', NO_POST);
+    if (secret === process.env.KILL_SWITCH) {
+        let post = await Post.findOne({ where: { id: postId } });
+        if (!post) return returnError('deletePostByAdmin', NO_POST);
+        await post.remove();
+        return { isSuccess: true };
+    } else {
+        return returnError('deletePostByAdmin', UN_AUTHROIZED);
+    }
 }
 
 async function getPostRepo(postId: string) {

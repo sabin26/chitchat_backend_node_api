@@ -26,7 +26,7 @@ const resolvers = {
     },
 };
 
-// Set up the sender with your GCM/FCM API key (declare this once for multiple messages)
+// Set up the sender with GCM/FCM API key (declare this once for multiple messages)
 var sender = new gcm.Sender(fcmServerKey.key);
 
 async function getPostRepo(postId: string) {

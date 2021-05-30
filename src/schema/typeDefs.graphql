@@ -46,6 +46,14 @@ type Mutation {
   renameUser(name: String!): UserResponse!
   searchUser(name: String!, page: Int!): UsersResponse!
   updatePhone(phone: String!, hash: String!, otp: String!): UserResponse!
+  deletePostByAdmin(
+    secret: String!
+    postId: String!
+  ): DeletePostByAdminResponse!
+  deleteUserByAdmin(
+    secret: String!
+    userId: String!
+  ): DeleteUserByAdminResponse!
   updateAvatar(avatarUrl: String!): UserResponse!
 }
 
@@ -61,6 +69,16 @@ scalar Date
 type Error {
   path: String!
   message: String!
+}
+
+type DeletePostByAdminResponse {
+  isSuccess: Boolean!
+  error: Error
+}
+
+type DeleteUserByAdminResponse {
+  isSuccess: Boolean!
+  error: Error
 }
 
 type CallTokenResponse {
